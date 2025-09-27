@@ -1,10 +1,15 @@
 <script setup lang="ts">
+import type { FormError } from '@nuxt/ui';
 import { TYPE_OPTIONS, type RecordItem } from '~/models';
 import { useRecordsStore, } from '~/stores/records'
 
 const store = useRecordsStore()
 
+
 const { record, index } = defineProps<{ record: RecordItem, index: number }>()
+
+const formState = reactive<RecordItem>({ ...record })
+
 
 const showPassword = ref(false);
 const typeOptions = [...TYPE_OPTIONS];
@@ -14,38 +19,61 @@ const togglePassword = () => {
     showPassword.value = !showPassword.value;
 }
 
+const validate = (state: RecordItem): FormError[] => {
+    const errors: FormError[] = []
+
+    if (state.login == null || state.login === '' || state.login.length > 100) {
+        errors.push({ name: 'login', message: ' ' })
+    }
+
+    if (state.type === 'Локальная' &&
+        (state.password == null || state.password === '' || state.password.length > 100)) {
+        errors.push({ name: 'password', message: ' ' })
+    }
+
+    return errors
+}
+
+
+watch(
+    () => formState,
+    (val) => {
+        const isValid = validate(val);
+        if (isValid.length === 0) {
+            store.updateRecord(index, val)
+        }
+    },
+    { deep: true, immediate: true }
+)
+
 </script>
 
 <template>
-    <UInput :model-value="record.labels" maxlength="50" placeholder="Метки" class="flex-1"
-        @update:model-value="val => store.updateRecord(index, { labels: val })" />
+    <UForm :validate-on="['blur']" :validate="validate" :state="formState" class="flex">
 
+        <UInput v-model="formState.labels" maxlength="50" placeholder="Метки" />
 
-    <USelect :model-value="record.type" :items="typeOptions" class="w-40" @update:model-value="val => store.updateRecord(index, {
-        type: (val as any), password:
-            val === 'LDAP' ? null : record.password
-    })" />
+        <USelect v-model="formState.type" :items="typeOptions" />
 
+        <UFormField name="login">
+            <UInput v-model="formState.login" maxlength="100" placeholder="Логин" />
+        </UFormField>
 
-    <UInput :model-value="record.login" maxlength="100" placeholder="Логин" class="flex-1"
-        @update:model-value="val => store.updateRecord(index, { login: val })" />
+        <div v-if="formState.type === 'Локальная'" class="flex items-center gap-1 flex-1">
+            <UFormField name="password">
+                <UInput v-model="formState.password" placeholder="Password" :type="showPassword ? 'text' : 'password'"
+                    :ui="{ trailing: 'pe-1' }">
+                    <template #trailing>
+                        <UButton color="neutral" variant="link" size="sm"
+                            :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                            :aria-label="showPassword ? 'Hide password' : 'Show password'" :aria-pressed="showPassword"
+                            aria-controls="password" @click="togglePassword()" />
+                    </template>
+                </UInput>
+            </UFormField>
 
+        </div>
 
-    <div v-if="record.type === 'Локальная'" class="flex items-center gap-1 flex-1">
-        <UInput :model-value="record.password" placeholder="Password"
-            @update:model-value="val => store.updateRecord(index, { password: val })"
-            :type="showPassword ? 'text' : 'password'" :ui="{ trailing: 'pe-1' }">
-            <template #trailing>
-                <UButton color="neutral" variant="link" size="sm"
-                    :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
-                    :aria-label="showPassword ? 'Hide password' : 'Show password'" :aria-pressed="showPassword"
-                    aria-controls="password" @click="togglePassword()" />
-            </template>
-        </UInput>
-    </div>
-
-
-    <UButton icon="i-heroicons-trash" color="error" variant="ghost" @click="remove(index)" />
-
-
+        <UButton icon="i-heroicons-trash" color="error" variant="ghost" @click="remove(index)" />
+    </UForm>
 </template>

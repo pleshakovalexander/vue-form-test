@@ -1,6 +1,13 @@
 <script setup lang="ts">
 const store = useRecordsStore()
-const add = () => store.addRecord()
+
+const records = ref([...store.records]);
+const add = () => records.value.push({
+  labels: "",
+  type: "Локальная",
+  login: "",
+  password: "",
+});
 
 </script>
 
@@ -8,7 +15,8 @@ const add = () => store.addRecord()
   <UApp>
     <div class="flex gap-4">
       <h1 class="text-2xl ">Учетные записи</h1>
-      <UButton @click="add()" icon="i-heroicons-plus-20-solid" color="primary" variant="solid" />
+
+      <UButton @click="add()" icon="i-heroicons-plus" color="primary" variant="solid" />
     </div>
 
     <div class="flex items-center gap-2 rounded-md bg-gray-50 p-2 text-sm text-gray-700">
@@ -18,7 +26,7 @@ const add = () => store.addRecord()
       </p>
     </div>
 
-    <div v-for="(record, index) in store.records" :key="index" class="flex gap-2 items-center">
+    <div v-for="(record, index) in records" :key="index" class="flex gap-2 items-center">
       <RecordItem :record="record" :index="index" />
     </div>
 

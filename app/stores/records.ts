@@ -17,14 +17,14 @@ export const useRecordsStore = defineStore("records", {
     removeRecord(index: number) {
       this.records.splice(index, 1);
     },
-    updateRecord(index: number, payload: Partial<RecordItem>) {
+    updateRecord(index: number, payload: RecordItem) {
       const updatedRecord = this.records[index];
 
-      if (!updatedRecord) return;
-      this.records[index] = {
-        ...updatedRecord,
-        ...payload,
-      };
+      if (updatedRecord) {
+        this.records[index] = payload;
+      } else {
+        this.records.push(payload);
+      }
     },
   },
   persist: true,
