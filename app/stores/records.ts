@@ -8,22 +8,25 @@ export const useRecordsStore = defineStore("records", {
   actions: {
     addRecord() {
       this.records.push({
+        id: crypto.randomUUID(),
         labels: "",
         type: "Локальная",
         login: "",
         password: "",
       });
     },
-    removeRecord(index: number) {
-      this.records.splice(index, 1);
+    removeRecord(id: string) {
+      this.records = this.records.filter((r) => r.id !== id);
     },
-    updateRecord(index: number, payload: RecordItem) {
-      const updatedRecord = this.records[index];
+    updateRecord(record: RecordItem) {
+      const updatedRecord = this.records.find((r) => r.id === record.id);
 
       if (updatedRecord) {
-        this.records[index] = payload;
+        this.records = this.records.map((r) =>
+          r.id === record.id ? record : r
+        );
       } else {
-        this.records.push(payload);
+        this.records.push(record);
       }
     },
   },

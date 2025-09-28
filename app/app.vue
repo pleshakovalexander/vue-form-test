@@ -1,13 +1,33 @@
 <script setup lang="ts">
+import type { RecordItem } from './models';
+
 const store = useRecordsStore()
 
-const records = ref([...store.records]);
+const records = ref([...store.records] as (RecordItem & { id?: string })[]);
 const add = () => records.value.push({
+  id: crypto.randomUUID(),
   labels: "",
   type: "Локальная",
   login: "",
   password: "",
 });
+
+const remove = (id: string) => {
+  console.log(records.value);
+  store.removeRecord(id);
+  records.value = records.value.filter(r => r.id !== id);
+  console.log(records.value);
+
+}
+
+const update = (record: RecordItem) => {
+  records.value = records.value.map(r => r.id === record.id ? record : r);
+
+  if (recordValidate(record).length === 0) {
+    store.updateRecord(record)
+  }
+
+}
 
 </script>
 
@@ -15,7 +35,6 @@ const add = () => records.value.push({
   <UApp>
     <div class="flex gap-4">
       <h1 class="text-2xl ">Учетные записи</h1>
-
       <UButton @click="add()" icon="i-heroicons-plus" color="primary" variant="solid" />
     </div>
 
@@ -26,9 +45,8 @@ const add = () => records.value.push({
       </p>
     </div>
 
-    <div v-for="(record, index) in records" :key="index" class="flex gap-2 items-center">
-      <RecordItem :record="record" :index="index" />
+    <div v-for="(record, index) in records" :key="record.id" class="flex gap-2 items-center">
+      <RecordItem :record="record" :index="index" @remove="remove(record.id)" @update="update($event)" />
     </div>
-
   </UApp>
 </template>

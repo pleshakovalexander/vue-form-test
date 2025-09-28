@@ -1,48 +1,31 @@
 <script setup lang="ts">
-import type { FormError } from '@nuxt/ui';
 import { TYPE_OPTIONS, type RecordItem } from '~/models';
-import { useRecordsStore, } from '~/stores/records'
 
-const store = useRecordsStore()
+const emit = defineEmits<{
+    (e: 'remove'): void
+    (e: 'update', value: RecordItem): void
 
+}>()
 
-const { record, index } = defineProps<{ record: RecordItem, index: number }>()
+const { record } = defineProps<{ record: RecordItem }>()
 
 const formState = reactive<RecordItem>({ ...record })
-
 
 const showPassword = ref(false);
 const typeOptions = [...TYPE_OPTIONS];
 
-const remove = (i: number) => store.removeRecord(i)
+const remove = () => {
+    emit('remove');
+}
 const togglePassword = () => {
     showPassword.value = !showPassword.value;
 }
 
-const validate = (state: RecordItem): FormError[] => {
-    const errors: FormError[] = []
-
-    if (state.login == null || state.login === '' || state.login.length > 100) {
-        errors.push({ name: 'login', message: ' ' })
-    }
-
-    if (state.type === 'Локальная' &&
-        (state.password == null || state.password === '' || state.password.length > 100)) {
-        errors.push({ name: 'password', message: ' ' })
-    }
-
-    return errors
-}
-
+const validate = recordValidate
 
 watch(
     () => formState,
-    (val) => {
-        const isValid = validate(val);
-        if (isValid.length === 0) {
-            store.updateRecord(index, val)
-        }
-    },
+    (val) => emit('update', val),
     { deep: true, immediate: true }
 )
 
@@ -74,6 +57,6 @@ watch(
 
         </div>
 
-        <UButton icon="i-heroicons-trash" color="error" variant="ghost" @click="remove(index)" />
+        <UButton icon="i-heroicons-trash" color="error" variant="ghost" @click="remove()" />
     </UForm>
 </template>
