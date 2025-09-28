@@ -16,4 +16,14 @@ export default defineNuxtConfig({
     },
   ],
   css: ["~/assets/css/main.css"],
+  icon: {
+    provider: "none",
+    clientBundle: {
+      scan: true,
+      icons: [
+        "lucide:chevron-down", // used by USelect
+        "lucide:check", // used by UCheckbox, USelect, etc.
+      ],
+    },
+  },
 });
