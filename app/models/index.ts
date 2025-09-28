@@ -8,3 +8,7 @@ export interface RecordItem {
   login: string;
   password: string | null;
 }
+
+export interface LabelSerializeType {
+  text: string;
+}

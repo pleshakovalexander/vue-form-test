@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { RecordItem } from "~/models";
+import type { LabelSerializeType, RecordItem } from "~/models";
 
 export const useRecordsStore = defineStore("records", {
   state: () => ({
@@ -24,5 +24,39 @@ export const useRecordsStore = defineStore("records", {
       }
     },
   },
-  persist: true,
+  persist: {
+    serializer: {
+      deserialize: (data: string) => {
+        const state = JSON.parse(data);
+        if (state?.records && Array.isArray(state.records)) {
+          const returnValue: { records: RecordItem[] } = { records: [] };
+
+          for (const record of state.records) {
+            returnValue.records.push({
+              ...record,
+              labels: (record.labels as LabelSerializeType[])
+                .map(({ text }) => text)
+                .join(";"),
+            });
+          }
+
+          return returnValue;
+        }
+
+        return { records: [] };
+      },
+      serialize: (data) => {
+        const result = {
+          records: (data as { records: RecordItem[] }).records.map((r) => ({
+            ...r,
+            labels: r.labels
+              .split(";")
+              .map((text): LabelSerializeType => ({ text })),
+          })),
+        };
+
+        return JSON.stringify(result);
+      },
+    },
+  },
 });
