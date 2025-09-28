@@ -1,6 +1,12 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: "2025-07-15",
+  app: {
+    baseURL: "/vue-form-test/",
+    head: {
+      link: [{ rel: "icon", href: "/vue-form-test/favicon.ico" }],
+    },
+  },
+
   devtools: { enabled: true },
   modules: [
     "@nuxt/eslint",
