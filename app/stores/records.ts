@@ -7,13 +7,7 @@ export const useRecordsStore = defineStore("records", {
   }),
   actions: {
     addRecord() {
-      this.records.push({
-        id: crypto.randomUUID(),
-        labels: "",
-        type: "Локальная",
-        login: "",
-        password: "",
-      });
+      this.records.push(newRecord());
     },
     removeRecord(id: string) {
       this.records = this.records.filter((r) => r.id !== id);

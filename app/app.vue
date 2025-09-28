@@ -4,13 +4,7 @@ import type { RecordItem } from './models';
 const store = useRecordsStore()
 
 const records = ref([...store.records] as (RecordItem & { id?: string })[]);
-const add = () => records.value.push({
-  id: crypto.randomUUID(),
-  labels: "",
-  type: "Локальная",
-  login: "",
-  password: "",
-});
+const add = () => records.value.push(newRecord());
 
 const remove = (id: string) => {
   console.log(records.value);
