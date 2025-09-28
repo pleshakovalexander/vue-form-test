@@ -5,3 +5,7 @@
 div.text-error{
     display: none;
 }
+
+body{
+    margin: 2rem 3rem;
+}
